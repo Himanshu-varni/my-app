@@ -1,6 +1,6 @@
 import { Component } from 'react';
-
-import logo from './logo.svg';
+import CardList from './components/card-list/card-list-component';
+//import logo from './logo.svg';
 import './App.css';
 
 
@@ -9,34 +9,55 @@ class App extends Component {
     super();
 
     this.state = {
-      name: { firstname : 'Yihua', lastName : 'Zhang'},
-      company: 'ZTM',
-    };
+      monsters: [],
+      searchField: ''
+      
+  };
+   
+}
+
+  componentDidMount() {
+    fetch('https://jsonplaceholder.typicode.com/users')
+       .then((response) => response.json())
+       .then((users) => 
+         this.setState( 
+          () => {
+         return {monsters: users}
+          },
+         
+     )
+    );
   }
 
+  onSearchChange = (event) => {
+    const searchField = event.target.value.toLocaleLowerCase();
+    this.setState(() => {
+      return {searchField};
+    });
+  };
+
   render() {
+    console.log('render');
+
+    const { monsters, searchField } = this.state;
+    const{ onSearchChange } = this;
+
+    const filteredMonsters = monsters.filter((monster) => {
+       return monster.name.toLocaleLowerCase().includes(searchField);
+    });
+
    return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-        Hi {this.state.name.firstName} {this.state.name.lastName} , I work at {this.state.company}
-        </p>
-        <button
-        onClick={() => {
-        this.setState(() => { 
-          return {
-          name:{ firstName : 'Andrei', lastName: 'Neaogie'},
-          };
-        });
-        }}
-        >
-        Change Name
-        </button>
-
-      </header>
-    </div>
-  );
-}}
-
+      <div className='App'>
+        <input 
+         className='search-box'
+          type='search'
+           placeholder='search monsters'
+           onChange={onSearchChange}
+             />
+             <CardList monsters={filteredMonsters} />
+          </div>
+      
+   );
+  }
+}
 export default App;
